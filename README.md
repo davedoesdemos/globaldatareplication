@@ -10,15 +10,15 @@ This demo came from a customer problem where large quantities of data must be in
 
 The basic architecture for the demo is shown below. Files will be copied into a storage account (either Blob or ADLS Gen 2). This will then trigger a function app (the one from the previous demo) which will either use a blob trigger (simpler) or an EventGrid trigger (more complex, but shorter start time). The function app will open the file and turn it into JSON events line by line to be sent into Event Hubs. A Stream Analytics job is then used as a consumer of the Event Grid to filter events and send them to a SQL database.
 
-[Basic Architecture](images/BasicArchitecture.png)
+![Basic Architecture](images/BasicArchitecture.png)
 
 Moving this to a multi-tenant architecture is very straightforward. Extra Stream Analytics jobs can be configured with their own consumer groups in Event Hubs. This allows each one to track its position in the data individually, and to separate the work of filtering and delivery. As such, the query used in Stream Analytics is customer specific, allowing their data to be delivered to multiple destinations or to include just the data they need. In terms of global distribution, there is a choice as to whether Stream Analytics is in the source or destination region. I couldn't see a good reason either would be preferred, although since there is a filter operation there will be less data transfer after the job, making it slightly cheaper and more efficient to host in the source region. There is no difference in latency since in both cases events are processed individually so latency is per event not per data run so every event will be processed with the same geographical latency whether local or remote processed. Similarly I couldn't see any large benefit/drawback when comparing one job delivering to two databases or two jobs for two databases running in parallel. In theory two jobs is better as it allows one database to gracefully fail and recover.
 
-[Multi Tenant](images/MultiTenant.png)
+![Multi Tenant](images/MultiTenant.png)
 
 ### Data
 
-The data used for this demo came from NASDAQ. I chose their top few stock data sets and added a column for the symbol (which wasn't in the original data) just so we can later filter by that. Obviously your data would normally include the fields you're going to filter on. I could have achieved the same by placing the files into individual folders and adding the stock symbol using the function app code before submission, but this seemed easier since it's not really core to the demo.
+The data used for this demo came from NASDAQ but is public data and alternatives are available from various locations with similar data. You can find my data files in the sample data firectory of the repository. I chose their top few stock data sets and added a column for the symbol (which wasn't in the original data) just so we can later filter by that. Obviously your data would normally include the fields you're going to filter on. I could have achieved the same by placing the files into individual folders and adding the stock symbol using the function app code before submission, but this seemed easier since it's not really core to the demo.
 
 ```
 Symbol,Date, Close/Last, Volume, Open, High, Low
