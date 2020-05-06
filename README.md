@@ -83,9 +83,9 @@ CREATE TABLE DataIn(
 "Symbol" text,
 "Date" DateTime,
 "Volume" int,
-"Open" float,
-"High" float,
-"Low" float,
+"Open" text,
+"High" text,
+"Low" text,
 "PartitionId" int
 )
 ```
