@@ -6,6 +6,8 @@
 
 This demo came from a customer problem where large quantities of data must be ingested and replicated to other sites around the world with low latency. Filtering of data is also a requirement to deliver to different customers downstream. The data arrives as a flat text file with tab separated values. As you'll recall I created a [recent demo](https://github.com/davedoesdemos/CSVBlobToEventHub/blob/master/README.md) which ingested CSV files to Event Hubs. This will allow us to do the global distribution before hitting the databases, ensuring the lowest possible latency in all locations. For this I also considered copying the flat files to many locations, but that would add latency since the file copy would need to complete before the first event is fired. With the architecture below we start making events immediately, so individual events are sent globally, each taking milliseconds where the file copy may have taken seconds before starting. In theory, this could also be mixed up with [this demo](https://github.com/davedoesdemos/dataupload) to allow people to drop CSV files into a web interface and turn them into an event stream.
 
+There is a [video of this demo here](https://youtu.be/rfN0YGpdnNE)
+
 ### Architecture
 
 The basic architecture for the demo is shown below. Files will be copied into a storage account (either Blob or ADLS Gen 2). This will then trigger a function app (the one from the previous demo) which will either use a blob trigger (simpler) or an EventGrid trigger (more complex, but shorter start time). The function app will open the file and turn it into JSON events line by line to be sent into Event Hubs. A Stream Analytics job is then used as a consumer of the Event Grid to filter events and send them to a SQL database.
